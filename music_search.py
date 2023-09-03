@@ -45,7 +45,7 @@ class Music_search(Plugin):
             music_url = result["data"][0]["url"]
             reply.content = ("\n作品名:" + str(results["result"]["songs"][0]["name"]) + "\n" +
                              "作者名:" + str(results["result"]["songs"][0]["artists"][0]["name"]) +
-                             "播放链接:" + music_url)
+                             "\n播放链接:" + music_url)
             e_context["reply"] = reply
             e_context.action = EventAction.BREAK_PASS
         elif "添加音乐%" in string or "音乐添加%" in string:
@@ -65,10 +65,10 @@ class Music_search(Plugin):
             with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="w", encoding="UTF-8") as f:
                 json.dump(file, f, indent=4, ensure_ascii=False)
             logger.info("添加音乐到json文件中")
-            reply.content = "添加成功！"
+            reply.content = "添加成功！\n作品名：" + str(json_file["作品名"]) + "\n作者名：" + str(json_file["作者名"])
             e_context["reply"] = reply
             e_context.action = EventAction.BREAK_PASS
-        elif "%日推" in string:
+        elif "%日推" == string:
             song = []
             with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="r", encoding="UTF-8") as f:
                 song = json.load(f)
@@ -97,11 +97,20 @@ class Music_search(Plugin):
                 else:
                     continue
             e_context.action = EventAction.BREAK_PASS
+        elif "%查询日推" == string:
+            with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="r", encoding="UTF-8") as f:
+                song = json.load(f)
+                reply.content = "日推列表为:\n"
+            for i in range(0, len(song)):
+                reply.content += (str(i+1) + ":" + song[i]["作品名"] + "    " + "播放情况:" + str(song[i]["did"]) + "\n")
+            e_context["reply"] = reply
+            e_context.action = EventAction.BREAK_PASS
         else:
             e_context.action = EventAction.CONTINUE
 
     def get_help_text(self, **kwargs):
         help_text = ("使用说明：\n" + "1.查询音乐 命令为: 查询音乐%example or 音乐查询%example\n" +
-                     "2.添加音乐到日推列表 命令为: 添加音乐%example or 音乐添加%example" +
-                     "3.日推 命令为: %日推 (Tip.一般不建议手动进行日推)")
+                     "2.添加音乐到日推列表 命令为: 添加音乐%example or 音乐添加%example\n" +
+                     "3.日推 命令为: %日推 (Tip.一般不建议手动进行日推)\n" +
+                     "4.查询日推 命令为: %查询日推")
         return help_text
