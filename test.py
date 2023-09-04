@@ -33,6 +33,23 @@ def add_json(name):
         json.dump(file, f, indent=4, ensure_ascii=False)
 
 
+def delete_json(name):
+    print(name)
+    with open("music.json", mode="r", encoding="UTF-8") as f:
+        file = json.load(f)
+    if name.isdigit():
+        del file[name - 1]
+    if not name.isdigit():
+        for i in range(0, len(file)):
+            if name == file[i]["作品名"]:
+                del file[i]
+                print("删除成功！")
+                break
+    print(len(file))
+    with open("music.json", mode="w", encoding="UTF-8") as f:
+        json.dump(file, f, indent=4, ensure_ascii=False)
+
+
 def song_send():
     song = []
     with open("music.json", mode="r", encoding="UTF-8") as f:
@@ -60,12 +77,15 @@ def song_send():
 
 write = input("请输入：")
 if "音乐查询#" in write or "查询音乐#" in write:
-    names = write[6:]
+    names = write[5:]
     get_url(name=names)
 elif "添加音乐#" in write or "音乐添加#" in write:
-    names = write[6:]
+    names = write[5:]
     add_json(name=names)
 elif "#日推" in write:
     song_send()
+elif "#删除音乐" in write:
+    names = write[5:]
+    delete_json(name=names)
 else:
     pass

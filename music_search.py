@@ -16,7 +16,7 @@ from plugins import *
     desire_priority=20,
     desc="一个简单的音乐搜索器，基于网易云音乐api",
     namecn="音乐搜索",
-    version="ver.2023/09/03",
+    version="2023/09/03",
     author="Penguin_YeTong"
 )
 class Music_search(Plugin):
@@ -35,7 +35,7 @@ class Music_search(Plugin):
         if "音乐查询%" in string or "查询音乐%" in string:
             names = string[5:]
             search_url = "https://music.penguinway.space/search?keywords=" + str(names)
-            logger.info("request" + search_url)
+            logger.info("request:" + search_url)
             back = requests.get(url=search_url)
             results = back.json()
             music_id = results["result"]["songs"][0]["id"]
@@ -53,7 +53,7 @@ class Music_search(Plugin):
             with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="r", encoding="UTF-8") as f:
                 file = json.load(f)
             search_url = search_url = "https://music.penguinway.space/search?keywords=" + str(names)
-            logger.info("request" + search_url)
+            logger.info("request:" + search_url)
             json_file = {}
             back = requests.get(url=search_url)
             results = back.json()
@@ -105,6 +105,24 @@ class Music_search(Plugin):
                 reply.content += (str(i+1) + ":" + song[i]["作品名"] + "    " + "播放情况:" + str(song[i]["did"]) + "\n")
             e_context["reply"] = reply
             e_context.action = EventAction.BREAK_PASS
+
+        elif "删除音乐%" in string:
+            name = string[5:]
+            with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="r", encoding="UTF-8") as f:
+                file = json.load(f)
+            if not name.isdigit():
+                for i in range(0, len(file)):
+                    if name == file[i]["作品名"]:
+                        del file[i]
+                        logger.info("删除列表项")
+                        reply.content = "删除成功！"
+                        break
+                    if i == len(file):
+                        reply.content = "查无此曲！"
+            with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="w", encoding="UTF-8") as f:
+                json.dump(file, f, indent=4, ensure_ascii=False)
+            e_context["reply"] = reply
+            e_context.action = EventAction.BREAK_PASS
         else:
             e_context.action = EventAction.CONTINUE
 
@@ -112,5 +130,6 @@ class Music_search(Plugin):
         help_text = ("使用说明：\n" + "1.查询音乐 命令为: 查询音乐%example or 音乐查询%example\n" +
                      "2.添加音乐到日推列表 命令为: 添加音乐%example or 音乐添加%example\n" +
                      "3.日推 命令为: %日推 (Tip.一般不建议手动进行日推)\n" +
-                     "4.查询日推 命令为: %查询日推")
+                     "4.查询日推 命令为: %查询日推\n" +
+                     "5.删除列表项 命令为: 删除音乐%example (Tip.[example]仅可为作品名)")
         return help_text
