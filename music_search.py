@@ -9,6 +9,7 @@ from common.expired_dict import ExpiredDict
 from common.log import logger
 from config import conf
 from plugins import *
+import json
 
 
 @plugins.register(
@@ -41,6 +42,9 @@ class Music_search(Plugin):
             songs = [song for song in data if not song["did"]]
             re += "\n已清理多余音乐！"
             logger.info("已清理多余音乐！")
+            logger.info(str(songs))
+        else:
+            songs = data
         return songs, re
 
     def get_music(self, e_context: EventContext):
@@ -153,6 +157,10 @@ class Music_search(Plugin):
                         break
                     if i == len(file):
                         reply.content = "查无此曲！"
+            elif name.isdigit():
+                del file[name]
+                logger.info("删除列表项")
+                reply.content = "删除成功！"
             else:
                 reply.content = "请输入正确的作品名！"
             with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="w", encoding="UTF-8") as f:
@@ -167,5 +175,5 @@ class Music_search(Plugin):
                      "2.添加音乐到日推列表 命令为: 添加音乐%example or 音乐添加%example\n" +
                      "3.日推 命令为: %音乐日推 or %日推音乐 (Tip.一般不建议手动进行日推)\n" +
                      "4.查询日推 命令为: %查询日推 or %日推查询\n" +
-                     "5.删除列表项 命令为: 删除音乐%example or 音乐删除%example (Tip.[example]仅可为作品名)")
+                     "5.删除列表项 命令为: 删除音乐%example or 音乐删除%example (Tip.[example]可为作品名或序号)")
         return help_text
