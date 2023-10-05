@@ -145,13 +145,13 @@ class Music_search(Plugin):
             with open("/chatgpt-on-wechat/plugins/music_url/music.json", mode="r", encoding="UTF-8") as f:
                 file = json.load(f)
             if not name.isdigit():
-                for song in file:
-                    if name == song["作品名"]:
-                        del song
+                for i in range(0, len(file)):
+                    if name == file[i]["作品名"]:
+                        del file[i]
                         logger.info("删除列表项")
                         reply.content = "删除成功！"
                         break
-                    if song == file[-1]:
+                    if i == len(file):
                         reply.content = "查无此曲！"
             else:
                 reply.content = "请输入正确的作品名！"
